@@ -1,32 +1,9 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>NovelAI まとめて生成</title>
-  <style>
-    body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 16px; }
-    textarea { width: 100%; box-sizing: border-box; padding: 8px; font-size: 14px; }
-    label { font-weight: bold; display: block; margin-top: 16px; }
-    button { margin-top: 16px; padding: 10px 24px; font-size: 16px; cursor: pointer; }
-    .hint { color: #666; font-size: 13px; margin-top: 4px; }
-    .error { color: #c0392b; margin-top: 16px; white-space: pre-wrap; }
-    .results { margin-top: 32px; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-    .card { border: 1px solid #ddd; padding: 12px; border-radius: 6px; }
-    .card img { max-width: 100%; }
-    .card .prompt { font-size: 12px; color: #555; margin-top: 8px; white-space: pre-wrap; }
-    .card .fail { color: #c0392b; font-size: 13px; }
-    nav a { margin-right: 16px; }
-  </style>
-</head>
-<body>
-  <nav>
-    <a href="/">1枚だけ生成</a>
-    <a href="/batch"><b>まとめて生成</b></a>
-  </nav>
-
+{% extends "base.html" %}
+{% block title %}NovelAI まとめて生成{% endblock %}
+{% block content %}
   <h1>NovelAI まとめて生成</h1>
 
-  <form method="post">
+  <form method="post" class="form">
     <label for="long_text">長文プロンプト（空行で区切ると、そこがシーンの切れ目になります）</label>
     <textarea name="long_text" id="long_text" rows="12" placeholder="1girl, forest, campfire, night&#10;&#10;1girl, village, daytime, walking&#10;&#10;1girl, mountain top, sunset">{{ long_text }}</textarea>
     <div class="hint">例：1シーン分の文章を書いたら、1行空けて次のシーンを書く、を繰り返してください</div>
@@ -56,5 +33,4 @@
       {% endfor %}
     </div>
   {% endif %}
-</body>
-</html>
+{% endblock %}

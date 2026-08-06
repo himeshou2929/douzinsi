@@ -1,9 +1,10 @@
 import re
 import time
 from pathlib import Path
+
 from flask import Flask, render_template, request
 
-from novelai_client import generate_image
+from novelai_client import generate_image, NovelAIError
 
 app = Flask(__name__)
 
@@ -15,6 +16,8 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 def index():
     image_url = None
     error = None
+    prompt = ""
+    negative_prompt = ""
 
     if request.method == "POST":
         prompt = request.form.get("prompt", "").strip()
@@ -28,10 +31,16 @@ def index():
                 filename = f"gen_{int(time.time())}.png"
                 (OUTPUT_DIR / filename).write_bytes(png_bytes)
                 image_url = f"/static/output/{filename}"
-            except Exception as e:
+            except NovelAIError as e:
                 error = str(e)
 
-    return render_template("index.html", image_url=image_url, error=error)
+    return render_template(
+        "index.html",
+        image_url=image_url,
+        error=error,
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+    )
 
 
 @app.route("/batch", methods=["GET", "POST"])
@@ -59,7 +68,7 @@ def batch():
                     filename = f"batch_{ts}_{i:02d}.png"
                     (OUTPUT_DIR / filename).write_bytes(png_bytes)
                     entry["image_url"] = f"/static/output/{filename}"
-                except Exception as e:
+                except NovelAIError as e:
                     entry["error"] = str(e)
                 results.append(entry)
                 time.sleep(3)
