@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 
 import config
-from novelai_client import generate_image, NovelAIError
+from novelai_client import generate_images, NovelAIError
 
 OUTPUT_DIR = Path(__file__).parent / "output"
 PROMPTS_CSV = Path(__file__).parent / "prompts.csv"
@@ -26,8 +26,8 @@ def main():
 
         print(f"[{i}/{len(rows)}] {row['id']} 生成中...")
         try:
-            png_bytes = generate_image(row["prompt"], row.get("negative_prompt", ""))
-            out_path.write_bytes(png_bytes)
+            png_list = generate_images(row["prompt"], row.get("negative_prompt", ""))
+            out_path.write_bytes(png_list[0])
             print(f"[{i}/{len(rows)}] {row['id']} 完了 -> {out_path}")
         except NovelAIError as e:
             print(f"[{i}/{len(rows)}] {row['id']} 失敗: {e}")

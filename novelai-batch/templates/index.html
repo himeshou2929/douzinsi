@@ -3,12 +3,28 @@
 {% block content %}
   <h1>NovelAI 画像生成</h1>
 
-  <form method="post" class="form">
+  <form method="post" class="form" enctype="multipart/form-data">
     <label for="prompt">プロンプト</label>
     <textarea name="prompt" id="prompt" rows="4">{{ prompt }}</textarea>
 
     <label for="negative_prompt">ネガティブプロンプト</label>
     <textarea name="negative_prompt" id="negative_prompt" rows="2">{{ negative_prompt }}</textarea>
+
+    <label for="n_samples">生成枚数（1〜{{ max_n_samples }}）</label>
+    <input type="number" name="n_samples" id="n_samples" min="1" max="{{ max_n_samples }}" step="1" value="{{ n_samples }}">
+
+    <label for="reference_image">キャラ基準画像（任意・Vibe Transferでキャラを固定）</label>
+    <input type="file" name="reference_image" id="reference_image" accept="image/*">
+    <div class="hint">固定したいキャラが写った画像を1枚アップロードすると、その特徴を反映して生成します</div>
+    <label for="reference_strength">参照強度（0〜1、大きいほど基準画像に強く寄せる）</label>
+    <input type="number" name="reference_strength" id="reference_strength" min="0" max="1" step="0.1" value="{{ reference_strength }}">
+
+    <label for="style_reference_image">スタイル基準画像（任意・絵柄・塗り方を固定）</label>
+    <input type="file" name="style_reference_image" id="style_reference_image" accept="image/*">
+    <div class="hint">キャラ基準画像とは別に、絵柄だけ真似したい画像を指定できます（両方指定も可）</div>
+    <label for="style_reference_strength">スタイル参照強度（0〜1）</label>
+    <input type="number" name="style_reference_strength" id="style_reference_strength" min="0" max="1" step="0.1" value="{{ style_reference_strength }}">
+    <div class="hint">キャラとスタイルを両方指定する場合、2つの強度の合計が1.0以下になるくらいが目安です</div>
 
     <button type="submit">生成する</button>
   </form>
@@ -17,7 +33,13 @@
     <div class="error">エラー: {{ error }}</div>
   {% endif %}
 
-  {% if image_url %}
-    <img class="result" src="{{ image_url }}" alt="生成結果">
+  {% if image_urls %}
+    <div class="results">
+      {% for url in image_urls %}
+        <div class="card">
+          <img src="{{ url }}" alt="生成結果{{ loop.index }}">
+        </div>
+      {% endfor %}
+    </div>
   {% endif %}
 {% endblock %}

@@ -3,13 +3,30 @@
 {% block content %}
   <h1>NovelAI まとめて生成</h1>
 
-  <form method="post" class="form">
+  <form method="post" class="form" enctype="multipart/form-data">
     <label for="long_text">長文プロンプト（空行で区切ると、そこがシーンの切れ目になります）</label>
     <textarea name="long_text" id="long_text" rows="12" placeholder="1girl, forest, campfire, night&#10;&#10;1girl, village, daytime, walking&#10;&#10;1girl, mountain top, sunset">{{ long_text }}</textarea>
     <div class="hint">例：1シーン分の文章を書いたら、1行空けて次のシーンを書く、を繰り返してください</div>
 
     <label for="negative_prompt">ネガティブプロンプト（全シーン共通）</label>
     <textarea name="negative_prompt" id="negative_prompt" rows="2">{{ negative_prompt }}</textarea>
+
+    <label for="n_samples">1シーンあたりの生成枚数（1〜{{ max_n_samples }}）</label>
+    <input type="number" name="n_samples" id="n_samples" min="1" max="{{ max_n_samples }}" step="1" value="{{ n_samples }}">
+    <div class="hint">シーン数×この枚数だけ生成されるので、増やすほど時間がかかります</div>
+
+    <label for="reference_image">キャラ基準画像（任意・Vibe Transferで全シーン共通のキャラに固定）</label>
+    <input type="file" name="reference_image" id="reference_image" accept="image/*">
+    <div class="hint">固定したいキャラが写った画像を1枚アップロードすると、全シーンでその特徴を反映して生成します</div>
+    <label for="reference_strength">参照強度（0〜1、大きいほど基準画像に強く寄せる）</label>
+    <input type="number" name="reference_strength" id="reference_strength" min="0" max="1" step="0.1" value="{{ reference_strength }}">
+
+    <label for="style_reference_image">スタイル基準画像（任意・絵柄・塗り方を全シーン共通で固定）</label>
+    <input type="file" name="style_reference_image" id="style_reference_image" accept="image/*">
+    <div class="hint">キャラ基準画像とは別に、絵柄だけ真似したい画像を指定できます（両方指定も可）</div>
+    <label for="style_reference_strength">スタイル参照強度（0〜1）</label>
+    <input type="number" name="style_reference_strength" id="style_reference_strength" min="0" max="1" step="0.1" value="{{ style_reference_strength }}">
+    <div class="hint">キャラとスタイルを両方指定する場合、2つの強度の合計が1.0以下になるくらいが目安です</div>
 
     <button type="submit">まとめて生成する</button>
   </form>
@@ -22,9 +39,11 @@
     <div class="results">
       {% for r in results %}
         <div class="card">
-          <div><b>{{ r.index }}枚目</b></div>
-          {% if r.image_url %}
-            <img src="{{ r.image_url }}" alt="生成結果{{ r.index }}">
+          <div><b>{{ r.index }}シーン目</b></div>
+          {% if r.image_urls %}
+            {% for url in r.image_urls %}
+              <img src="{{ url }}" alt="生成結果{{ r.index }}-{{ loop.index }}">
+            {% endfor %}
           {% else %}
             <div class="fail">失敗: {{ r.error }}</div>
           {% endif %}
