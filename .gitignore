@@ -1,0 +1,8 @@
+.env
+*.env
+novelai-batch/output/
+novelai-batch/static/output/
+novelai-batch/server.log
+__pycache__/
+*.pyc
+.DS_Store
